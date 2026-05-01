@@ -442,6 +442,7 @@ export default function App() {
               &copy; 2026 Public Proof. All rights reserved.
             </p>
             <div className="flex gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+              <a href="/sitemap.xml" target="_blank" className="hover:text-slate-400 transition-colors">Sitemap</a>
               <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Terms of Service</a>
               <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Security Audit</a>
               <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Cookie Policy</a>

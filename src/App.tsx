@@ -404,9 +404,9 @@ export default function App() {
               </p>
               <div className="flex gap-4">
                 {[
-                  { icon: Twitter, href: "https://twitter.com" },
-                  { icon: Linkedin, href: "https://linkedin.com" },
-                  { icon: Github, href: "https://github.com" },
+                  { icon: Twitter, href: "https://x.com/MattyJamesHagen" },
+                  { icon: Linkedin, href: "https://www.linkedin.com/in/mattjhagen/" },
+                  { icon: Github, href: "https://github.com/Mattjhagen" },
                   { icon: Mail, href: "mailto:Matty@p3lending.space" }
                 ].map((social, idx) => (
                   <a key={idx} href={social.href} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:bg-slate-800 transition-all">

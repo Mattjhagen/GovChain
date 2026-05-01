@@ -47,6 +47,21 @@ const PublicProofLogo = ({ className = "h-8" }: { className?: string }) => (
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   
+  const navItems = [
+    { name: 'Dashboard', href: '#dashboard' },
+    { name: 'Bills', href: '#bills' },
+    { name: 'Track', href: '#track' },
+    { name: 'About', href: '#about' },
+    { name: 'API', href: '#api', isMock: true }
+  ];
+
+  const handleNavClick = (e: React.MouseEvent, item: any) => {
+    if (item.isMock) {
+      e.preventDefault();
+      alert(`${item.name} access is reserved for verified government nodes. Concept demonstration only.`);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,16 +70,20 @@ const Navbar = () => {
           
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {['Dashboard', 'Bills', 'Track', 'About', 'API'].map((item) => (
+            {navItems.map((item) => (
               <a 
-                key={item} 
-                href={`#${item.toLowerCase()}`}
-                className="text-sm font-medium text-slate-400 hover:text-gold-400 transition-colors uppercase tracking-widest"
+                key={item.name} 
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item)}
+                className="text-[10px] font-bold text-slate-400 hover:text-gold-400 transition-colors uppercase tracking-[0.2em]"
               >
-                {item}
+                {item.name}
               </a>
             ))}
-            <button className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-5 py-2 rounded-lg text-sm font-bold transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+            <button 
+              onClick={() => alert("Verification portal opening... (Mocked for campaign trail)")}
+              className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+            >
               Get Involved
             </button>
           </div>
@@ -87,17 +106,23 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -20 }}
             className="md:hidden bg-slate-900 border-b border-white/10 px-4 py-8 flex flex-col gap-6"
           >
-            {['Dashboard', 'Bills', 'Track', 'About', 'API'].map((item) => (
+            {navItems.map((item) => (
               <a 
-                key={item} 
-                href={`#${item.toLowerCase()}`}
+                key={item.name} 
+                href={item.href}
                 className="text-lg font-medium text-slate-200"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  handleNavClick(e, item);
+                  setIsOpen(false);
+                }}
               >
-                {item}
+                {item.name}
               </a>
             ))}
-            <button className="bg-gold-500 text-slate-950 px-5 py-3 rounded-lg font-bold text-center">
+            <button 
+              onClick={() => alert("Verification portal opening...")}
+              className="bg-gold-500 text-slate-950 px-5 py-3 rounded-lg font-bold text-center"
+            >
               Get Involved
             </button>
           </motion.div>
@@ -122,7 +147,7 @@ const StatCard = ({ icon: Icon, label, value }: { icon: any, label: string, valu
   </motion.div>
 );
 
-const ActivityRow = ({ bill, action, sponsor, date }: { bill: string, action: string, sponsor: string, date: string }) => (
+const ActivityRow = ({ bill, action, sponsor, date, insight }: { bill: string, action: string, sponsor: string, date: string, insight: string }) => (
   <tr className="border-b border-white/5 hover:bg-white/5 transition-colors group">
     <td className="py-4 px-4 font-mono text-gold-400 text-sm">{bill}</td>
     <td className="py-4 px-4">
@@ -133,9 +158,19 @@ const ActivityRow = ({ bill, action, sponsor, date }: { bill: string, action: st
     <td className="py-4 px-4 text-sm text-slate-300">{sponsor}</td>
     <td className="py-4 px-4 text-sm text-slate-500 italic">{date}</td>
     <td className="py-4 px-4 text-right">
-      <button className="text-xs font-bold text-gold-500 hover:text-gold-400 flex items-center gap-1 ml-auto group-hover:translate-x-1 transition-transform uppercase tracking-tighter">
-        View <ChevronRight size={14} />
-      </button>
+      <div className="relative group/view inline-block">
+        <button className="text-xs font-bold text-gold-500 hover:text-gold-400 flex items-center gap-1 ml-auto group-hover:translate-x-1 transition-transform uppercase tracking-tighter">
+          View <ChevronRight size={14} />
+        </button>
+        {/* Tooltip */}
+        <div className="absolute bottom-full right-0 mb-2 w-56 p-3 bg-slate-900 border border-gold-500/30 rounded-xl opacity-0 invisible group-hover/view:opacity-100 group-hover/view:visible transition-all z-20 shadow-2xl pointer-events-none scale-95 group-hover/view:scale-100 origin-bottom-right">
+           <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
+             <div className="w-2 h-2 bg-gold-500 rounded-full" />
+             <span className="text-[10px] font-bold text-white uppercase tracking-widest">Bill Insights</span>
+           </div>
+           <p className="text-[10px] text-slate-300 leading-relaxed font-medium">{insight}</p>
+        </div>
+      </div>
     </td>
   </tr>
 );
@@ -176,19 +211,23 @@ export default function App() {
               transition={{ delay: 0.2, duration: 0.8 }}
               className="flex flex-wrap gap-4"
             >
-              <button className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)]">
+              <button 
+                onClick={() => window.location.href = "#bills"}
+                className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)]"
+              >
                 Explore Bills
               </button>
-              <button className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all border border-white/10">
+              <button 
+                onClick={() => window.location.href = "#about"}
+                className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all border border-white/10"
+              >
                 How It Works
               </button>
             </motion.div>
 
             {/* Search Bar */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
+            <form 
+              onSubmit={(e) => { e.preventDefault(); alert("Search feature mocked for concept presentation."); }}
               className="relative group max-w-2xl"
             >
               <div className="absolute inset-y-0 left-5 flex items-center text-slate-500">
@@ -199,16 +238,16 @@ export default function App() {
                 placeholder="Search bills, representatives, or keywords..."
                 className="w-full bg-slate-900/80 border border-white/10 rounded-2xl py-5 pl-14 pr-32 focus:outline-none focus:ring-2 focus:ring-gold-500/50 text-white placeholder-slate-500 text-lg transition-all focus:bg-slate-900"
               />
-              <button className="absolute right-3 top-2.5 bottom-2.5 bg-gold-500 hover:bg-gold-400 text-slate-950 px-6 rounded-xl font-bold transition-colors">
+              <button type="submit" className="absolute right-3 top-2.5 bottom-2.5 bg-gold-500 hover:bg-gold-400 text-slate-950 px-6 rounded-xl font-bold transition-colors">
                 Search
               </button>
-            </motion.div>
+            </form>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 relative">
+      <section className="py-12 relative" id="dashboard">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <StatCard icon={FileText} label="Bills Tracked" value="12,458" />
@@ -220,7 +259,7 @@ export default function App() {
       </section>
 
       {/* Main Content: Activity & Flow */}
-      <section className="py-20">
+      <section className="py-20" id="bills">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-start">
           
           {/* Recent Activity */}
@@ -235,7 +274,12 @@ export default function App() {
                 <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Recent Activity</h2>
                 <div className="h-1 w-12 bg-gold-500 mt-2 rounded-full" />
               </div>
-              <button className="text-xs font-bold text-slate-500 hover:text-gold-500 transition-colors uppercase tracking-widest">View All</button>
+              <button 
+                onClick={() => alert("Redirecting to Full Activity Ledger...")}
+                className="text-xs font-bold text-slate-500 hover:text-gold-500 transition-colors uppercase tracking-widest"
+              >
+                View All
+              </button>
             </div>
 
             <div className="glass-card rounded-2xl overflow-hidden">
@@ -250,11 +294,41 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  <ActivityRow bill="H.R. 7215" action="Introduced" sponsor="Rep. John Smith" date="May 20, 2024" />
-                  <ActivityRow bill="S. 4122" action="Amendment Added" sponsor="Sen. Jane Doe" date="May 19, 2024" />
-                  <ActivityRow bill="H.R. 6789" action="Committee Vote" sponsor="Rep. Mark Johnson" date="May 18, 2024" />
-                  <ActivityRow bill="S. 2103" action="Amendment Added" sponsor="Sen. Emily Davis" date="May 17, 2024" />
-                  <ActivityRow bill="H.R. 3355" action="Passed House" sponsor="Rep. Michael Brown" date="May 16, 2024" />
+                  <ActivityRow 
+                    bill="H.R. 7215" 
+                    action="Introduced" 
+                    sponsor="Rep. John Smith" 
+                    date="May 20, 2024" 
+                    insight="Initial draft focuses on renewable energy infrastructure and tax incentives for regional grids."
+                  />
+                  <ActivityRow 
+                    bill="S. 4122" 
+                    action="Amendment Added" 
+                    sponsor="Sen. Jane Doe" 
+                    date="May 19, 2024" 
+                    insight="Added provision for independent audits of project spending over $50M."
+                  />
+                  <ActivityRow 
+                    bill="H.R. 6789" 
+                    action="Committee Vote" 
+                    sponsor="Rep. Mark Johnson" 
+                    date="May 18, 2024" 
+                    insight="Passed Agriculture Committee with 14-3 bipartisan support."
+                  />
+                  <ActivityRow 
+                    bill="S. 2103" 
+                    action="Amendment Added" 
+                    sponsor="Sen. Emily Davis" 
+                    date="May 17, 2024" 
+                    insight="Modified Section 4 to include protections for small-scale urban farmers."
+                  />
+                  <ActivityRow 
+                    bill="H.R. 3355" 
+                    action="Passed House" 
+                    sponsor="Rep. Michael Brown" 
+                    date="May 16, 2024" 
+                    insight="Final version includes 12 blockchain-verified amendments since introduction."
+                  />
                 </tbody>
               </table>
             </div>
@@ -266,6 +340,7 @@ export default function App() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="space-y-12"
+            id="track"
           >
             <div className="space-y-4">
               <h2 className="text-4xl font-bold text-white">How It Works</h2>
@@ -319,7 +394,7 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-950 border-t border-white/5 pt-20 pb-10">
+      <footer className="bg-slate-950 border-t border-white/5 pt-20 pb-10" id="about">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 pb-20">
             <div className="col-span-2 space-y-6">
@@ -328,9 +403,14 @@ export default function App() {
                 Empowering citizens with verifiable truth and radical accountability. Our mission is to make the legislative process impossible to obscure.
               </p>
               <div className="flex gap-4">
-                {[Twitter, Linkedin, Github, Mail].map((Icon, idx) => (
-                  <a key={idx} href="#" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:bg-slate-800 transition-all">
-                    <Icon size={18} />
+                {[
+                  { icon: Twitter, href: "https://twitter.com" },
+                  { icon: Linkedin, href: "https://linkedin.com" },
+                  { icon: Github, href: "https://github.com" },
+                  { icon: Mail, href: "mailto:Matty@p3lending.space" }
+                ].map((social, idx) => (
+                  <a key={idx} href={social.href} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:bg-slate-800 transition-all">
+                    <social.icon size={18} />
                   </a>
                 ))}
               </div>
@@ -339,20 +419,20 @@ export default function App() {
             <div className="space-y-6">
               <h5 className="text-xs font-bold text-white uppercase tracking-widest">Platform</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Legislative Nodes</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Audit Ledger</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">API Docs</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Status</a></li>
+                <li><a href="#track" className="hover:text-gold-400 transition-colors">Legislative Nodes</a></li>
+                <li><a href="#dashboard" className="hover:text-gold-400 transition-colors">Audit Ledger</a></li>
+                <li><a href="#api" onClick={(e) => { e.preventDefault(); alert("API documentation coming in v2.0"); }} className="hover:text-gold-400 transition-colors">API Docs</a></li>
+                <li><a href="#status" onClick={(e) => { e.preventDefault(); alert("System status: Optimal"); }} className="hover:text-gold-400 transition-colors">Status</a></li>
               </ul>
             </div>
 
             <div className="space-y-6">
               <h5 className="text-xs font-bold text-white uppercase tracking-widest">Company</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Our Mission</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Whitepaper</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Privacy</a></li>
+                <li><a href="#about" className="hover:text-gold-400 transition-colors">Our Mission</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert("Whitepaper released following beta launch."); }} className="hover:text-gold-400 transition-colors">Whitepaper</a></li>
+                <li><a href="mailto:Matty@p3lending.space" className="hover:text-gold-400 transition-colors">Contact</a></li>
+                <li><a href="#" onClick={(e) => { e.preventDefault(); alert("Privacy is automated via zero-knowledge proofs."); }} className="hover:text-gold-400 transition-colors">Privacy</a></li>
               </ul>
             </div>
           </div>
@@ -362,9 +442,9 @@ export default function App() {
               &copy; 2026 Public Proof. All rights reserved.
             </p>
             <div className="flex gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              <a href="#" className="hover:text-slate-400 transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Security Audit</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Cookie Policy</a>
+              <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Terms of Service</a>
+              <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Security Audit</a>
+              <a href="#" onClick={(e) => e.preventDefault()} className="hover:text-slate-400 transition-colors">Cookie Policy</a>
             </div>
           </div>
         </div>

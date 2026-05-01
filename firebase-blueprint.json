@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "Bill": {
+      "title": "Bill",
+      "description": "A legislative bill or amendment tracked on the platform.",
+      "type": "object",
+      "properties": {
+        "billNumber": { "type": "string", "description": "The official bill number (e.g., H.R. 7215)" },
+        "action": { "type": "string", "description": "The current status or latest action taken" },
+        "sponsor": { "type": "string", "description": "The primary sponsor of the bill" },
+        "date": { "type": "string", "description": "The date of the last action" },
+        "insight": { "type": "string", "description": "Brief summary or insight about the bill" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["billNumber", "action", "sponsor", "date", "insight"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "A contact or involvement inquiry from a user.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "createdAt"]
+    }
+  },
+  "firestore": {
+    "bills": {
+      "schema": "Bill",
+      "description": "Collection of tracked legislative bills."
+    },
+    "inquiries": {
+      "schema": "Inquiry",
+      "description": "User inquiries and involvement requests."
+    }
+  }
+}

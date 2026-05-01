@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    // 1. Bills Collection
+    // Publicly readable for the transparency platform
+    match /bills/{billId} {
+      allow read: if true;
+      
+      // Only authorized administrative entities can modify bills (mocked for demo)
+      // In a real scenario, this would be a specific admin UID or role
+      allow write: if false; 
+    }
+
+    // 2. Inquiries Collection (Get Involved)
+    match /inquiries/{inquiryId} {
+      // Anyone can submit an inquiry (leads)
+      allow create: if isValidInquiry(incoming());
+      
+      // Reading inquiries is restricted to the platform owners/admins
+      allow read: if false; 
+    }
+
+    function isValidInquiry(data) {
+      return data.keys().hasAll(['email', 'createdAt']) 
+        && data.keys().size() >= 2
+        && data.email is string && data.email.size() <= 200
+        && data.createdAt == request.time;
+    }
+  }
+}

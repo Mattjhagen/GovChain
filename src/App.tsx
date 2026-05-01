@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, 
   Search, 
@@ -15,9 +15,23 @@ import {
   Github,
   Twitter,
   Linkedin,
-  Mail
+  Mail,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { db, handleFirestoreError, OperationType } from './lib/firebase';
+import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs } from 'firebase/firestore';
+
+// --- Types ---
+
+interface Bill {
+  id?: string;
+  billNumber: string;
+  action: string;
+  sponsor: string;
+  date: string;
+  insight: string;
+}
 
 // --- Sub-components ---
 
@@ -44,7 +58,7 @@ const PublicProofLogo = ({ className = "h-8" }: { className?: string }) => (
   </div>
 );
 
-const Navbar = () => {
+const Navbar = ({ onOpenInvolved }: { onOpenInvolved: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   const navItems = [
@@ -81,7 +95,7 @@ const Navbar = () => {
               </a>
             ))}
             <button 
-              onClick={() => alert("Verification portal opening... (Mocked for campaign trail)")}
+              onClick={onOpenInvolved}
               className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
             >
               Get Involved
@@ -120,7 +134,7 @@ const Navbar = () => {
               </a>
             ))}
             <button 
-              onClick={() => alert("Verification portal opening...")}
+              onClick={() => { onOpenInvolved(); setIsOpen(false); }}
               className="bg-gold-500 text-slate-950 px-5 py-3 rounded-lg font-bold text-center"
             >
               Get Involved
@@ -147,9 +161,9 @@ const StatCard = ({ icon: Icon, label, value }: { icon: any, label: string, valu
   </motion.div>
 );
 
-const ActivityRow = ({ bill, action, sponsor, date, insight }: { bill: string, action: string, sponsor: string, date: string, insight: string }) => (
+const ActivityRow = ({ billNumber, action, sponsor, date, insight }: { billNumber: string, action: string, sponsor: string, date: string, insight: string, key?: React.Key }) => (
   <tr className="border-b border-white/5 hover:bg-white/5 transition-colors group">
-    <td className="py-4 px-4 font-mono text-gold-400 text-sm">{bill}</td>
+    <td className="py-4 px-4 font-mono text-gold-400 text-sm">{billNumber}</td>
     <td className="py-4 px-4">
       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-bold text-slate-300 uppercase letter-spacing-1">
         {action}
@@ -175,10 +189,139 @@ const ActivityRow = ({ bill, action, sponsor, date, insight }: { bill: string, a
   </tr>
 );
 
+const InvolvementModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'inquiries'), {
+        email,
+        createdAt: serverTimestamp(),
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        onClose();
+        setSuccess(false);
+        setEmail('');
+      }, 3000);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, 'inquiries');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="relative w-full max-w-md bg-slate-900 border border-gold-500/30 rounded-3xl p-8 shadow-2xl"
+          >
+            <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+            
+            {success ? (
+              <div className="text-center py-8 space-y-4">
+                <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
+                  <CheckCircle2 size={32} />
+                </div>
+                <h3 className="text-2xl font-bold text-white">Application Sent</h3>
+                <p className="text-slate-400">Verifying your node credentials... We will contact you soon.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-white tracking-tight">Join the Network</h3>
+                  <p className="text-slate-400 text-sm">Become a legislative node operator or advocate for local transparency.</p>
+                </div>
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
+                    <input 
+                      required
+                      type="email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="senator@capitol.gov"
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50 transition-all font-mono text-sm"
+                    />
+                  </div>
+                  <button 
+                    disabled={loading}
+                    type="submit" 
+                    className="w-full bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-slate-950 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    {loading ? <Loader2 className="animate-spin" size={18} /> : "Request Access"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export default function App() {
+  const [isInvolvedModalOpen, setIsInvolvedModalOpen] = useState(false);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [loadingBills, setLoadingBills] = useState(true);
+
+  useEffect(() => {
+    const fetchBills = async () => {
+      try {
+        const q = query(collection(db, 'bills'), orderBy('timestamp', 'desc'), limit(5));
+        const snapshot = await getDocs(q);
+        const fetchedBills = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bill));
+        
+        // If empty (newly deployed), use mock data as fallback for now
+        if (fetchedBills.length === 0) {
+          setBills([
+            { billNumber: "H.R. 7215", action: "Introduced", sponsor: "Rep. John Smith", date: "May 20, 2024", insight: "Initial draft focuses on renewable energy infrastructure." },
+            { billNumber: "S. 4122", action: "Amendment Added", sponsor: "Sen. Jane Doe", date: "May 19, 2024", insight: "Added provision for independent audits of project spending." },
+            { billNumber: "H.R. 6789", action: "Committee Vote", sponsor: "Rep. Mark Johnson", date: "May 18, 2024", insight: "Passed Agriculture Committee with 14-3 support." },
+            { billNumber: "S. 2103", action: "Amendment Added", sponsor: "Sen. Emily Davis", date: "May 17, 2024", insight: "Modified Section 4 to include urban farmer protections." },
+            { billNumber: "H.R. 3355", action: "Passed House", sponsor: "Rep. Michael Brown", date: "May 16, 2024", insight: "Final version includes 12 blockchain-verified amendments." },
+          ]);
+        } else {
+          setBills(fetchedBills);
+        }
+      } catch (err) {
+        console.error("Error fetching bills, using mock data", err);
+        // Fallback for demo if rules/data not ready
+        setBills([
+          { billNumber: "H.R. 7215", action: "Introduced", sponsor: "Rep. John Smith", date: "May 20, 2024", insight: "Initial draft focuses on renewable energy infrastructure." },
+        ]);
+      } finally {
+        setLoadingBills(false);
+      }
+    };
+
+    fetchBills();
+  }, []);
+
   return (
     <div className="min-h-screen font-sans selection:bg-gold-500/30">
-      <Navbar />
+      <Navbar onOpenInvolved={() => setIsInvolvedModalOpen(true)} />
+      <InvolvementModal isOpen={isInvolvedModalOpen} onClose={() => setIsInvolvedModalOpen(false)} />
       
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
@@ -294,41 +437,25 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  <ActivityRow 
-                    bill="H.R. 7215" 
-                    action="Introduced" 
-                    sponsor="Rep. John Smith" 
-                    date="May 20, 2024" 
-                    insight="Initial draft focuses on renewable energy infrastructure and tax incentives for regional grids."
-                  />
-                  <ActivityRow 
-                    bill="S. 4122" 
-                    action="Amendment Added" 
-                    sponsor="Sen. Jane Doe" 
-                    date="May 19, 2024" 
-                    insight="Added provision for independent audits of project spending over $50M."
-                  />
-                  <ActivityRow 
-                    bill="H.R. 6789" 
-                    action="Committee Vote" 
-                    sponsor="Rep. Mark Johnson" 
-                    date="May 18, 2024" 
-                    insight="Passed Agriculture Committee with 14-3 bipartisan support."
-                  />
-                  <ActivityRow 
-                    bill="S. 2103" 
-                    action="Amendment Added" 
-                    sponsor="Sen. Emily Davis" 
-                    date="May 17, 2024" 
-                    insight="Modified Section 4 to include protections for small-scale urban farmers."
-                  />
-                  <ActivityRow 
-                    bill="H.R. 3355" 
-                    action="Passed House" 
-                    sponsor="Rep. Michael Brown" 
-                    date="May 16, 2024" 
-                    insight="Final version includes 12 blockchain-verified amendments since introduction."
-                  />
+                  {loadingBills ? (
+                    <tr>
+                      <td colSpan={5} className="py-12 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <Loader2 className="animate-spin text-gold-500" size={24} />
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Hydrating Chain Data...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : bills.map((bill, idx) => (
+                    <ActivityRow 
+                      key={bill.id || idx}
+                      billNumber={bill.billNumber} 
+                      action={bill.action} 
+                      sponsor={bill.sponsor} 
+                      date={bill.date} 
+                      insight={bill.insight} 
+                    />
+                  ))}
                 </tbody>
               </table>
             </div>

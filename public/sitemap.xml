@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ais-dev-xlihw6vwiknyhurxdozlm6-42749824887.us-west1.run.app/</loc>
+    <loc>https://finchwire.site/</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ais-dev-xlihw6vwiknyhurxdozlm6-42749824887.us-west1.run.app/#dashboard</loc>
+    <loc>https://finchwire.site/#dashboard</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-dev-xlihw6vwiknyhurxdozlm6-42749824887.us-west1.run.app/#bills</loc>
+    <loc>https://finchwire.site/#bills</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ais-dev-xlihw6vwiknyhurxdozlm6-42749824887.us-west1.run.app/#track</loc>
+    <loc>https://finchwire.site/#track</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ais-dev-xlihw6vwiknyhurxdozlm6-42749824887.us-west1.run.app/#about</loc>
+    <loc>https://finchwire.site/#about</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

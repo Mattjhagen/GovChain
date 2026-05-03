@@ -115,7 +115,6 @@ const Navbar = ({ onOpenInvolved }: { onOpenInvolved: () => void }) => {
               <a 
                 key={item.name} 
                 href={item.href}
-                download={item.isDownload}
                 className="text-lg font-medium text-slate-200"
                 onClick={() => setIsOpen(false)}
               >
@@ -298,7 +297,7 @@ export default function App() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }} className="flex flex-wrap gap-4">
-              <a href="/GovChain_Whitepaper.pdf" download className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2">
+              <a href="/GovChain_Whitepaper.pdf" download className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2 text-decoration-none">
                 <FileText size={20} /> Read White Paper
               </a>
               <button onClick={() => window.location.href = "#resilience"} className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all border border-white/10">
@@ -417,10 +416,21 @@ export default function App() {
               </div>
             </div>
             
+            {/* ///////////////////////////////////////////////////////////// */}
+            {/* THE SECTION BELOW HAS BEEN UPDATED TO REMOVE THE MOCK ALERT  */}
+            {/* ///////////////////////////////////////////////////////////// */}
             <div className="space-y-6">
               <h5 className="text-xs font-bold text-white uppercase tracking-widest">Resources</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a href="/GovChain_Whitepaper.pdf" download className="hover:text-gold-400 transition-colors flex items-center gap-2 text-gold-500 font-bold"><FileText size={14} /> White Paper</a></li>
+                <li>
+                  <a 
+                    href="/GovChain_Whitepaper.pdf" 
+                    download="GovChain_Whitepaper.pdf" 
+                    className="hover:text-gold-400 transition-colors flex items-center gap-2 text-gold-500 font-bold"
+                  >
+                    <FileText size={14} /> White Paper
+                  </a>
+                </li>
                 <li><a href="#resilience" className="hover:text-gold-400 transition-colors">Resilience Model</a></li>
                 <li><a href="#dashboard" className="hover:text-gold-400 transition-colors">Audit Ledger</a></li>
               </ul>

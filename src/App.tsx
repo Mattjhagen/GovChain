@@ -19,17 +19,14 @@ import {
   Loader2,
   AlertTriangle,
   Zap,
-  Lock
+  Lock,
+  ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs } from 'firebase/firestore';
 
-// Log to verify deployment: Press F12 in browser to see this
-console.log("GovChain Resilience Update v1.0.2 Loaded");
-
 // --- Types ---
-
 interface Bill {
   id?: string;
   billNumber: string;
@@ -39,10 +36,10 @@ interface Bill {
   insight: string;
 }
 
-// --- Sub-components ---
+// --- Components ---
 
-const PublicProofLogo = ({ className = "h-8" }: { className?: string }) => (
-  <div className={`flex items-center gap-2 ${className}`}>
+const PublicProofLogo = ({ onClick }: { onClick: () => void }) => (
+  <div className="flex items-center gap-2 cursor-pointer" onClick={onClick}>
     <div className="relative w-10 h-10 flex items-center justify-center">
       <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-gold-500 fill-none stroke-current stroke-[6] stroke-linejoin-round">
         <path d="M50 5 L90 27.5 L90 72.5 L50 95 L10 72.5 L10 27.5 Z" />
@@ -64,86 +61,84 @@ const PublicProofLogo = ({ className = "h-8" }: { className?: string }) => (
   </div>
 );
 
-const Navbar = ({ onOpenInvolved }: { onOpenInvolved: () => void }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  const navItems = [
-    { name: 'Dashboard', href: '#dashboard' },
-    { name: 'Bills', href: '#bills' },
-    { name: 'Resilience', href: '#resilience' },
-    { name: 'Research', href: '/GovChain_Whitepaper.pdf', isDownload: true },
-  ];
+// --- New Component: Whitepaper View ---
+const WhitepaperView = ({ onBack }: { onBack: () => void }) => {
+  useEffect(() => window.scrollTo(0, 0), []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <PublicProofLogo />
-          
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <a 
-                key={item.name} 
-                href={item.href}
-                download={item.isDownload}
-                className="text-[10px] font-bold text-slate-400 hover:text-gold-400 transition-colors uppercase tracking-[0.2em]"
-              >
-                {item.name}
-              </a>
-            ))}
-            <button 
-              onClick={onOpenInvolved}
-              className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
-            >
-              Get Involved
-            </button>
-          </div>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      className="pt-32 pb-20 max-w-4xl mx-auto px-6"
+    >
+      <button 
+        onClick={onBack}
+        className="flex items-center gap-2 text-gold-500 font-bold uppercase tracking-widest text-xs mb-12 hover:text-gold-400 transition-colors"
+      >
+        <ArrowLeft size={16} /> Back to Home
+      </button>
 
-          <div className="md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="text-slate-400 p-2">
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+      <div className="glass-card p-8 md:p-16 rounded-3xl border border-white/10 shadow-2xl space-y-12">
+        <header className="text-center space-y-4 border-b border-white/10 pb-12">
+          <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+            GovChain: A Decentralized Infrastructure for Government Resilience
+          </h1>
+          <div className="text-gold-500 font-mono text-lg">
+            Matt J. Hagen <br />
+            <span className="text-slate-400 text-sm">matty@p3lending.space</span>
           </div>
-        </div>
+        </header>
+
+        <section className="space-y-6 text-slate-300 leading-relaxed text-lg">
+          <h3 className="text-white font-bold text-xl uppercase tracking-wider">Abstract</h3>
+          <p className="bg-white/5 p-6 rounded-2xl italic">
+            Modern government operations rely heavily on centralized databases, creating significant vulnerabilities known as Single Points of Failure (SPOF). This paper introduces GovChain, a decentralized framework leveraging distributed ledger technology to secure government records—ranging from legislative bills to land titles and identities.
+          </p>
+
+          <h3 className="text-white font-bold text-xl uppercase tracking-wider pt-8">1. Introduction</h3>
+          <p>
+            As governments transition to digital-first services, the architecture of their data storage determines the stability of the state. Traditional systems operate on a "hub-and-spoke" model where all critical information is housed in a central repository. While historically efficient, this model is inherently fragile.
+          </p>
+
+          <h3 className="text-white font-bold text-xl uppercase tracking-wider pt-8">2. The Single Point of Failure (SPOF)</h3>
+          <p>
+            A Single Point of Failure is a part of a system that, if it fails, will stop the entire system from working. In a government context, this might be a single server room in a capital city or a specific vendor’s database. GovChain mitigates this by ensuring that the "truth" is verified by multiple nodes rather than a single authority.
+          </p>
+
+          <h3 className="text-white font-bold text-xl uppercase tracking-wider pt-8">3. Digital Safety Net</h3>
+          <p>
+            GovChain utilizes a distributed ledger—a digital notary that exists in multiple locations simultaneously. Once a legal bill or public record is "chained," it cannot be deleted or altered retroactively without the consensus of the network.
+          </p>
+
+          <h3 className="text-white font-bold text-xl uppercase tracking-wider pt-8">4. Beyond Legal Bills</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <strong className="text-gold-500 block mb-1">Land Registry</strong> Prevents title fraud via immutable records.
+            </div>
+            <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <strong className="text-gold-500 block mb-1">Digital Identity</strong> Secure, citizen-owned identities.
+            </div>
+            <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <strong className="text-gold-500 block mb-1">Procurement</strong> Tracking every dollar to eliminate waste.
+            </div>
+            <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <strong className="text-gold-500 block mb-1">Disaster Recovery</strong> Records survive catastrophes.
+            </div>
+          </div>
+        </section>
+
+        <footer className="pt-12 border-t border-white/10 text-xs text-slate-500 space-y-4">
+          <p>References: Estonia KSI [1], U.S. GSA [2], Nakamoto [3], NIST [4].</p>
+          <a href="/Whitepaper.md" download className="text-gold-500 font-bold hover:underline">Download Raw Markdown (.md)</a>
+        </footer>
       </div>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-slate-900 border-b border-white/10 px-4 py-8 flex flex-col gap-6"
-          >
-            {navItems.map((item) => (
-              <a 
-                key={item.name} 
-                href={item.href}
-                download={item.isDownload}
-                className="text-lg font-medium text-slate-200"
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </a>
-            ))}
-            <button 
-              onClick={() => { onOpenInvolved(); setIsOpen(false); }}
-              className="bg-gold-500 text-slate-950 px-5 py-3 rounded-lg font-bold text-center"
-            >
-              Get Involved
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+    </motion.div>
   );
 };
 
+// --- Sub-components (StatCard, ActivityRow, InvolvementModal remain largely same) ---
 const StatCard = ({ icon: Icon, label, value }: { icon: any, label: string, value: string }) => (
-  <motion.div 
-    whileHover={{ y: -5 }}
-    className="glass-card p-6 rounded-2xl flex flex-col items-center text-center space-y-3 group transition-all hover:ring-1 hover:ring-gold-500/30"
-  >
+  <motion.div whileHover={{ y: -5 }} className="glass-card p-6 rounded-2xl flex flex-col items-center text-center space-y-3 group transition-all hover:ring-1 hover:ring-gold-500/30">
     <div className="w-12 h-12 bg-gold-500/10 rounded-xl flex items-center justify-center text-gold-500 group-hover:bg-gold-500 group-hover:text-slate-950 transition-colors">
       <Icon size={24} />
     </div>
@@ -158,101 +153,23 @@ const ActivityRow = ({ billNumber, action, sponsor, date, insight }: { billNumbe
   <tr className="border-b border-white/5 hover:bg-white/5 transition-colors group">
     <td className="py-4 px-4 font-mono text-gold-400 text-sm">{billNumber}</td>
     <td className="py-4 px-4">
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-bold text-slate-300 uppercase letter-spacing-1">
-        {action}
-      </span>
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-bold text-slate-300 uppercase letter-spacing-1">{action}</span>
     </td>
     <td className="py-4 px-4 text-sm text-slate-300">{sponsor}</td>
     <td className="py-4 px-4 text-sm text-slate-500 italic">{date}</td>
     <td className="py-4 px-4 text-right">
-      <div className="relative group/view inline-block">
-        <button className="text-xs font-bold text-gold-500 hover:text-gold-400 flex items-center gap-1 ml-auto group-hover:translate-x-1 transition-transform uppercase tracking-tighter">
-          Verify <ChevronRight size={14} />
-        </button>
-        <div className="absolute bottom-full right-0 mb-2 w-56 p-3 bg-slate-900 border border-gold-500/30 rounded-xl opacity-0 invisible group-hover/view:opacity-100 group-hover/view:visible transition-all z-20 shadow-2xl pointer-events-none scale-95 group-hover/view:scale-100 origin-bottom-right">
-           <div className="flex items-center gap-2 mb-2 border-b border-white/10 pb-1">
-             <div className="w-2 h-2 bg-gold-500 rounded-full" />
-             <span className="text-[10px] font-bold text-white uppercase tracking-widest">Chain Proof</span>
-           </div>
-           <p className="text-[10px] text-slate-300 leading-relaxed font-medium">{insight}</p>
-        </div>
-      </div>
+      <button className="text-xs font-bold text-gold-500 hover:text-gold-400 flex items-center gap-1 ml-auto transition-transform uppercase tracking-tighter">Verify <ChevronRight size={14} /></button>
     </td>
   </tr>
 );
 
-const InvolvementModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await addDoc(collection(db, 'inquiries'), {
-        email,
-        createdAt: serverTimestamp(),
-      });
-      setSuccess(true);
-      setTimeout(() => {
-        onClose();
-        setSuccess(false);
-        setEmail('');
-      }, 3000);
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, 'inquiries');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm"/>
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-md bg-slate-900 border border-gold-500/30 rounded-3xl p-8 shadow-2xl">
-            <button onClick={onClose} className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors">
-              <X size={20} />
-            </button>
-            {success ? (
-              <div className="text-center py-8 space-y-4">
-                <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle2 size={32} />
-                </div>
-                <h3 className="text-2xl font-bold text-white">Application Sent</h3>
-                <p className="text-slate-400">Verifying credentials... We will contact you soon.</p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-white tracking-tight">Join GovChain</h3>
-                  <p className="text-slate-400 text-sm">Contribute to the resilience of government infrastructure.</p>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
-                    <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="official@gov.us" className="w-full bg-slate-800 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50 transition-all font-mono text-sm" />
-                  </div>
-                  <button disabled={loading} type="submit" className="w-full bg-gold-500 hover:bg-gold-400 disabled:opacity-50 text-slate-950 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                    {loading ? <Loader2 className="animate-spin" size={18} /> : "Request Node Access"}
-                  </button>
-                </form>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 export default function App() {
+  const [view, setView] = useState<'home' | 'whitepaper'>('home');
   const [isInvolvedModalOpen, setIsInvolvedModalOpen] = useState(false);
   const [bills, setBills] = useState<Bill[]>([]);
   const [loadingBills, setLoadingBills] = useState(true);
 
+  // Re-use your existing useEffect for fetching bills
   useEffect(() => {
     const fetchBills = async () => {
       try {
@@ -261,214 +178,135 @@ export default function App() {
         const fetchedBills = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bill));
         if (fetchedBills.length === 0) {
           setBills([
-            { billNumber: "H.R. 7215", action: "Introduced", sponsor: "Rep. John Smith", date: "May 20, 2024", insight: "Verified against 1,240 federal nodes." },
-            { billNumber: "S. 4122", action: "Amendment", sponsor: "Sen. Jane Doe", date: "May 19, 2024", insight: "Immutable record of spending audits." },
-            { billNumber: "H.R. 6789", action: "Committee", sponsor: "Rep. Mark Johnson", date: "May 18, 2024", insight: "Agriculture committee consensus reached." },
+            { billNumber: "H.R. 7215", action: "Introduced", sponsor: "Rep. John Smith", date: "May 20, 2024", insight: "Resilience protocol active." },
+            { billNumber: "S. 4122", action: "Amendment", sponsor: "Sen. Jane Doe", date: "May 19, 2024", insight: "Immutable audit trail." },
           ]);
         } else {
           setBills(fetchedBills);
         }
-      } catch (err) {
-        setBills([{ billNumber: "H.R. 7215", action: "Live", sponsor: "Network", date: "Active", insight: "Real-time sync active." }]);
-      } finally {
-        setLoadingBills(false);
-      }
+      } catch (err) { console.error(err); } finally { setLoadingBills(false); }
     };
     fetchBills();
   }, []);
 
   return (
-    <div className="min-h-screen font-sans selection:bg-gold-500/30 bg-slate-950">
-      <Navbar onOpenInvolved={() => setIsInvolvedModalOpen(true)} />
-      <InvolvementModal isOpen={isInvolvedModalOpen} onClose={() => setIsInvolvedModalOpen(false)} />
+    <div className="min-h-screen font-sans selection:bg-gold-500/30 bg-slate-950 text-slate-300">
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-grid opacity-20" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gold-500/10 rounded-full blur-[120px] z-0" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl space-y-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-[10px] font-bold uppercase tracking-widest">
-                <Shield size={12} /> Decentralized Infrastructure
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+          <PublicProofLogo onClick={() => setView('home')} />
+          <div className="hidden md:flex items-center gap-8">
+            <button onClick={() => setView('home')} className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-gold-500">Home</button>
+            <button onClick={() => setView('whitepaper')} className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-gold-500">Whitepaper</button>
+            <button onClick={() => setIsInvolvedModalOpen(true)} className="bg-gold-500 text-slate-950 px-5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_20px_rgba(245,158,11,0.3)]">Get Involved</button>
+          </div>
+        </div>
+      </nav>
+
+      <AnimatePresence mode="wait">
+        {view === 'home' ? (
+          <motion.main 
+            key="home"
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+          >
+            {/* Hero Section */}
+            <section className="relative pt-48 pb-20 overflow-hidden px-4">
+              <div className="max-w-7xl mx-auto relative z-10">
+                <div className="max-w-3xl space-y-8">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-[10px] font-bold uppercase tracking-widest">
+                    <Shield size={12} /> Decentralized Infrastructure
+                  </div>
+                  <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
+                    Eliminating Single Points of <span className="text-gold-500 text-glow-gold">Failure.</span>
+                  </h1>
+                  <p className="text-xl text-slate-400 leading-relaxed max-w-2xl font-light">
+                    Protecting government records, land deeds, and legislative integrity from hacks and systemic corruption through distributed resilience.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <button onClick={() => setView('whitepaper')} className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2">
+                      <FileText size={20} /> Read Whitepaper
+                    </button>
+                  </div>
+                </div>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
-                Eliminating Single Points of <span className="text-gold-500 text-glow-gold">Failure.</span>
-              </h1>
-              <p className="text-xl text-slate-400 leading-relaxed max-w-2xl font-light">
-                GovChain protects public records, land deeds, and legislative integrity from hacks, systemic failures, and central corruption.
-              </p>
-            </motion.div>
+            </section>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }} className="flex flex-wrap gap-4">
-              <a href="/GovChain_Whitepaper.pdf" download="GovChain_Whitepaper.pdf" className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2">
-                <FileText size={20} /> Foundation Paper
-              </a>
-              <button onClick={() => window.location.href = "#resilience"} className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all border border-white/10">
-                Resilience Model
-              </button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-12 relative" id="dashboard">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <StatCard icon={Database} label="Distributed Nodes" value="1,240" />
-            <StatCard icon={Zap} label="Uptime Resilience" value="99.99%" />
-            <StatCard icon={Shield} label="SPOF Risk" value="0%" />
-            <StatCard icon={CheckCircle2} label="Verified Bills" value="12k+" />
-          </div>
-        </div>
-      </section>
-
-      {/* Resilience Section */}
-      <section className="py-24 bg-slate-900/50" id="resilience">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-6">
-              <h2 className="text-4xl font-bold text-white leading-tight">Strengthening the State Against <span className="text-gold-500">Systemic Failure.</span></h2>
-              <p className="text-slate-400 text-lg leading-relaxed">
-                GovChain removes the "Single Point of Failure" in public service. By distributing records across a verifiable network, we ensure the government's memory is indestructible.
-              </p>
-              <ul className="space-y-4">
-                {[
-                  { title: "Immutable Records", desc: "Public data that cannot be forged or deleted by centralized actors." },
-                  { title: "Node-Based Security", desc: "Verification required by 1,000+ independent nodes to alter any record." },
-                  { title: "Continuity of State", desc: "Automated survival of public records through digital catastrophes." }
-                ].map((item, i) => (
-                  <li key={i} className="flex gap-4">
-                    <div className="mt-1 bg-gold-500/20 p-1 rounded-full text-gold-500 h-fit"><CheckCircle2 size={16} /></div>
-                    <div>
-                      <h4 className="font-bold text-white text-sm">{item.title}</h4>
-                      <p className="text-slate-500 text-xs">{item.desc}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="relative">
-              <div className="aspect-square bg-gold-500/5 border border-gold-500/20 rounded-3xl flex items-center justify-center p-12">
-                 <div className="relative w-full h-full flex items-center justify-center">
-                    <div className="absolute inset-0 border-2 border-dashed border-gold-500/20 rounded-full animate-spin-slow" />
-                    <Shield size={120} className="text-gold-500/40" />
-                    <Lock size={40} className="absolute top-0 text-gold-500" />
-                    <div className="absolute bottom-4 text-center">
-                      <p className="text-[10px] font-bold text-gold-500 uppercase tracking-widest">Resilience Protocol Active</p>
-                    </div>
-                 </div>
+            {/* Dashboard / Stats */}
+            <section className="py-12 max-w-7xl mx-auto px-4" id="dashboard">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard icon={Database} label="Distributed Nodes" value="1,240" />
+                <StatCard icon={Zap} label="Uptime Resilience" value="99.99%" />
+                <StatCard icon={Shield} label="SPOF Risk" value="0%" />
+                <StatCard icon={CheckCircle2} label="Verified Records" value="12k+" />
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* Activity Table */}
-      <section className="py-20" id="bills">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Public Audit Trail</h2>
-              <div className="h-1 w-12 bg-gold-500 mt-2 rounded-full" />
-            </div>
-          </div>
-          <div className="glass-card rounded-2xl overflow-hidden border border-white/5">
-            <table className="w-full text-left">
-              <thead className="bg-slate-950/50 border-b border-white/10">
-                <tr>
-                  <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Bill</th>
-                  <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Action</th>
-                  <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Source</th>
-                  <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</th>
-                  <th className="py-4 px-4 text-right">Verification</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loadingBills ? (
-                  <tr><td colSpan={5} className="py-12 text-center text-slate-500 font-mono text-xs uppercase tracking-widest">Syncing with nodes...</td></tr>
-                ) : (
-                  bills.map((bill, idx) => <ActivityRow key={idx} {...bill} />)
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+            {/* Activity Table */}
+            <section className="py-20 max-w-7xl mx-auto px-4" id="bills">
+              <h2 className="text-2xl font-bold text-white uppercase tracking-wider mb-8">Public Audit Trail</h2>
+              <div className="glass-card rounded-2xl overflow-hidden border border-white/5">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-950/50 border-b border-white/10">
+                    <tr>
+                      <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Record</th>
+                      <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Action</th>
+                      <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Source</th>
+                      <th className="py-4 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</th>
+                      <th className="py-4 px-4 text-right">Proof</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loadingBills ? (
+                      <tr><td colSpan={5} className="py-12 text-center text-slate-500 uppercase tracking-widest">Syncing Nodes...</td></tr>
+                    ) : (
+                      bills.map((bill, idx) => <ActivityRow key={idx} {...bill} />)
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </motion.main>
+        ) : (
+          <WhitepaperView key="whitepaper" onBack={() => setView('home')} />
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
-      <footer className="bg-slate-950 border-t border-white/5 pt-20 pb-10" id="about">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-slate-950 border-t border-white/5 pt-20 pb-10">
+        <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-12 pb-20">
             <div className="col-span-2 space-y-6">
-              <PublicProofLogo />
-              <p className="text-slate-400 max-w-sm leading-relaxed">
-                GovChain provides the digital safety net for modern governance. By decentralizing public records, we ensure trust is mathematical, not just political.
-              </p>
+              <PublicProofLogo onClick={() => setView('home')} />
+              <p className="text-slate-400 max-w-sm">Decentralizing government records to ensure trust is mathematical, not just political.</p>
               <div className="flex gap-4">
-                {[
-                  { icon: Twitter, href: "https://x.com/MattyJamesHagen" },
-                  { icon: Linkedin, href: "https://www.linkedin.com/in/mattjhagen/" },
-                  { icon: Github, href: "https://github.com/Mattjhagen" },
-                  { icon: Mail, href: "mailto:Matty@p3lending.space" }
-                ].map((social, idx) => (
-                  <a key={idx} href={social.href} target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 hover:bg-slate-800 transition-all">
-                    <social.icon size={18} />
-                  </a>
-                ))}
+                <a href="https://github.com/Mattjhagen" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 transition-all"><Github size={18} /></a>
+                <a href="mailto:matty@p3lending.space" className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-slate-400 hover:text-gold-500 transition-all"><Mail size={18} /></a>
               </div>
             </div>
-            
             <div className="space-y-6">
               <h5 className="text-xs font-bold text-white uppercase tracking-widest">Documentation</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                {/* 
-                  CLEANED LINK: No onClick, no alerts. 
-                  Points to the file in your public folder. 
-                */}
-                <li>
-                  <a 
-                    href="/GovChain_Whitepaper.pdf" 
-                    download 
-                    className="hover:text-gold-400 transition-colors flex items-center gap-2 text-gold-500 font-bold"
-                  >
-                    <FileText size={14} /> Foundation Paper
-                  </a>
-                </li>
-                <li><a href="#resilience" className="hover:text-gold-400 transition-colors">Resilience Model</a></li>
-                <li><a href="#dashboard" className="hover:text-gold-400 transition-colors">Audit Ledger</a></li>
+                <li><button onClick={() => setView('whitepaper')} className="hover:text-gold-500 transition-colors flex items-center gap-2"><FileText size={14} /> Whitepaper</button></li>
+                <li><a href="#" className="hover:text-gold-500 transition-colors">Resilience Model</a></li>
+                <li><a href="#dashboard" className="hover:text-gold-500 transition-colors">Audit Ledger</a></li>
               </ul>
             </div>
-
             <div className="space-y-6">
-              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Legal & SPOF</h5>
+              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Legal</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Distributed Governance</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Risk Assessment</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Compliance Audit</a></li>
+                <li><a href="#" className="hover:text-gold-500 transition-colors">SPOF Analysis</a></li>
+                <li><a href="#" className="hover:text-gold-500 transition-colors">Privacy Policy</a></li>
               </ul>
             </div>
           </div>
-          
-          <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-slate-600 text-[10px] uppercase tracking-widest font-medium">
-              &copy; {new Date().getFullYear()} GovChain Resilience Project.
-            </p>
-            <div className="flex gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              <a href="/GovChain_Whitepaper.pdf" download className="hover:text-slate-400 transition-colors">Download PDF</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Terms of Resilience</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Privacy Node</a>
-            </div>
-          </div>
+          <p className="text-slate-600 text-[10px] uppercase tracking-widest border-t border-white/5 pt-10">
+            &copy; {new Date().getFullYear()} GovChain Resilience Project. Distributed Safety Net Active.
+          </p>
         </div>
       </footer>
-
-      <div className="fixed bottom-6 right-6 z-40 bg-slate-900/80 backdrop-blur-md border border-gold-500/30 px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl">
-        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Resilience Node Verified: #821,442</span>
-      </div>
     </div>
   );
 }

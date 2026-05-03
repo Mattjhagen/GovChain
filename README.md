@@ -41,7 +41,19 @@ GovChain represents a fundamental upgrade to government infrastructure. By elimi
 References
 
 
-^1[1]: Estonia Information System Authority (RIA). "KSI Blockchain for Government." (2023).
-^1[2]: U.S. GSA. "Blockchain in the Public Sector: Case Studies and Lessons Learned." (2018).
-^1[3]: Nakamoto, S. "Bitcoin: A Peer-to-Peer Electronic Cash System." (2008).
-^1[4]: NIST. "Blockchain Technology Overview (Draft NISTIR 8202)." (2018).
+### Research Summary
+
+Estonia has been a pioneer in using KSI blockchain for government services [^1]. 
+The U.S. GSA also explored public sector case studies back in 2018 [^2]. 
+The fundamental concepts of this technology originate from Satoshi Nakamoto's whitepaper [^3], 
+which aligns with technical overviews provided by NIST [^4].
+
+---
+
+### References
+
+[^1]: Estonia Information System Authority (RIA). "KSI Blockchain for Government." (2023).
+[^2]: U.S. GSA. "Blockchain in the Public Sector: Case Studies and Lessons Learned." (2018).
+[^3]: Nakamoto, S. "Bitcoin: A Peer-to-Peer Electronic Cash System." (2008).
+[^4]: NIST. "Blockchain Technology Overview (Draft NISTIR 8202)." (2018).
+

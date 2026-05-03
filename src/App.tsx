@@ -18,11 +18,15 @@ import {
   Mail,
   Loader2,
   AlertTriangle,
-  Zap
+  Zap,
+  Lock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { db, handleFirestoreError, OperationType } from './lib/firebase';
 import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs } from 'firebase/firestore';
+
+// Log to verify deployment: Press F12 in browser to see this
+console.log("GovChain Resilience Update v1.0.2 Loaded");
 
 // --- Types ---
 
@@ -67,7 +71,7 @@ const Navbar = ({ onOpenInvolved }: { onOpenInvolved: () => void }) => {
     { name: 'Dashboard', href: '#dashboard' },
     { name: 'Bills', href: '#bills' },
     { name: 'Resilience', href: '#resilience' },
-    { name: 'White Paper', href: '/GovChain_Whitepaper.pdf', isDownload: true },
+    { name: 'Research', href: '/GovChain_Whitepaper.pdf', isDownload: true },
   ];
 
   return (
@@ -115,6 +119,7 @@ const Navbar = ({ onOpenInvolved }: { onOpenInvolved: () => void }) => {
               <a 
                 key={item.name} 
                 href={item.href}
+                download={item.isDownload}
                 className="text-lg font-medium text-slate-200"
                 onClick={() => setIsOpen(false)}
               >
@@ -286,19 +291,19 @@ export default function App() {
           <div className="max-w-3xl space-y-8">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-500 text-[10px] font-bold uppercase tracking-widest">
-                <Shield size={12} /> Beyond Legal Bills: Government Resilience
+                <Shield size={12} /> Decentralized Infrastructure
               </div>
               <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white leading-[1.1]">
                 Eliminating Single Points of <span className="text-gold-500 text-glow-gold">Failure.</span>
               </h1>
               <p className="text-xl text-slate-400 leading-relaxed max-w-2xl font-light">
-                GovChain provides the decentralized infrastructure necessary to protect public records, land deeds, and identities from hacks, failures, and corruption.
+                GovChain protects public records, land deeds, and legislative integrity from hacks, systemic failures, and central corruption.
               </p>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.8 }} className="flex flex-wrap gap-4">
-              <a href="/GovChain_Whitepaper.pdf" download className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2 text-decoration-none">
-                <FileText size={20} /> Read White Paper
+              <a href="/GovChain_Whitepaper.pdf" download="GovChain_Whitepaper.pdf" className="bg-gold-500 hover:bg-gold-400 text-slate-950 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 shadow-[0_10px_30px_rgba(245,158,11,0.2)] flex items-center gap-2">
+                <FileText size={20} /> Foundation Paper
               </a>
               <button onClick={() => window.location.href = "#resilience"} className="bg-slate-800 hover:bg-slate-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all border border-white/10">
                 Resilience Model
@@ -327,13 +332,13 @@ export default function App() {
             <div className="space-y-6">
               <h2 className="text-4xl font-bold text-white leading-tight">Strengthening the State Against <span className="text-gold-500">Systemic Failure.</span></h2>
               <p className="text-slate-400 text-lg leading-relaxed">
-                Most government data sits in a single database. If that database fails, the government stops working. GovChain replaces that "Single Point of Failure" with a distributed network.
+                GovChain removes the "Single Point of Failure" in public service. By distributing records across a verifiable network, we ensure the government's memory is indestructible.
               </p>
               <ul className="space-y-4">
                 {[
-                  { title: "Immutable Land Deeds", desc: "Decentralized titles that cannot be forged or deleted by hackers." },
-                  { title: "Identity Protection", desc: "Sovereign digital IDs that remain secure even if an agency is breached." },
-                  { title: "Disaster Recovery", desc: "Automated, indestructible backups of all essential public laws." }
+                  { title: "Immutable Records", desc: "Public data that cannot be forged or deleted by centralized actors." },
+                  { title: "Node-Based Security", desc: "Verification required by 1,000+ independent nodes to alter any record." },
+                  { title: "Continuity of State", desc: "Automated survival of public records through digital catastrophes." }
                 ].map((item, i) => (
                   <li key={i} className="flex gap-4">
                     <div className="mt-1 bg-gold-500/20 p-1 rounded-full text-gold-500 h-fit"><CheckCircle2 size={16} /></div>
@@ -350,9 +355,9 @@ export default function App() {
                  <div className="relative w-full h-full flex items-center justify-center">
                     <div className="absolute inset-0 border-2 border-dashed border-gold-500/20 rounded-full animate-spin-slow" />
                     <Shield size={120} className="text-gold-500/40" />
-                    <AlertTriangle size={40} className="absolute top-0 text-red-500 animate-bounce" />
+                    <Lock size={40} className="absolute top-0 text-gold-500" />
                     <div className="absolute bottom-4 text-center">
-                      <p className="text-[10px] font-bold text-gold-500 uppercase tracking-widest">Distributed Safety Net Active</p>
+                      <p className="text-[10px] font-bold text-gold-500 uppercase tracking-widest">Resilience Protocol Active</p>
                     </div>
                  </div>
               </div>
@@ -400,7 +405,7 @@ export default function App() {
             <div className="col-span-2 space-y-6">
               <PublicProofLogo />
               <p className="text-slate-400 max-w-sm leading-relaxed">
-                GovChain is a digital safety net for the state. By decentralizing government records, we ensure that public trust is protected by math, not just policy.
+                GovChain provides the digital safety net for modern governance. By decentralizing public records, we ensure trust is mathematical, not just political.
               </p>
               <div className="flex gap-4">
                 {[
@@ -416,19 +421,20 @@ export default function App() {
               </div>
             </div>
             
-            {/* ///////////////////////////////////////////////////////////// */}
-            {/* THE SECTION BELOW HAS BEEN UPDATED TO REMOVE THE MOCK ALERT  */}
-            {/* ///////////////////////////////////////////////////////////// */}
             <div className="space-y-6">
-              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Resources</h5>
+              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Documentation</h5>
               <ul className="space-y-4 text-sm text-slate-500">
+                {/* 
+                  CLEANED LINK: No onClick, no alerts. 
+                  Points to the file in your public folder. 
+                */}
                 <li>
                   <a 
                     href="/GovChain_Whitepaper.pdf" 
-                    download="GovChain_Whitepaper.pdf" 
+                    download 
                     className="hover:text-gold-400 transition-colors flex items-center gap-2 text-gold-500 font-bold"
                   >
-                    <FileText size={14} /> White Paper
+                    <FileText size={14} /> Foundation Paper
                   </a>
                 </li>
                 <li><a href="#resilience" className="hover:text-gold-400 transition-colors">Resilience Model</a></li>
@@ -437,32 +443,31 @@ export default function App() {
             </div>
 
             <div className="space-y-6">
-              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Infrastructure</h5>
+              <h5 className="text-xs font-bold text-white uppercase tracking-widest">Legal & SPOF</h5>
               <ul className="space-y-4 text-sm text-slate-500">
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Distributed Storage</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Node Compliance</a></li>
-                <li><a href="#" className="hover:text-gold-400 transition-colors">Security Audit</a></li>
+                <li><a href="#" className="hover:text-gold-400 transition-colors">Distributed Governance</a></li>
+                <li><a href="#" className="hover:text-gold-400 transition-colors">Risk Assessment</a></li>
+                <li><a href="#" className="hover:text-gold-400 transition-colors">Compliance Audit</a></li>
               </ul>
             </div>
           </div>
           
           <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-slate-600 text-[10px] uppercase tracking-widest font-medium">
-              &copy; {new Date().getFullYear()} GovChain Resilience Project. Public Common Good.
+              &copy; {new Date().getFullYear()} GovChain Resilience Project.
             </p>
             <div className="flex gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              <a href="/GovChain_Whitepaper.pdf" download className="hover:text-slate-400 transition-colors">Foundational Paper</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">Terms</a>
-              <a href="#" className="hover:text-slate-400 transition-colors">SPOF Analysis</a>
+              <a href="/GovChain_Whitepaper.pdf" download className="hover:text-slate-400 transition-colors">Download PDF</a>
+              <a href="#" className="hover:text-slate-400 transition-colors">Terms of Resilience</a>
+              <a href="#" className="hover:text-slate-400 transition-colors">Privacy Node</a>
             </div>
           </div>
         </div>
       </footer>
 
-      {/* Status Bar */}
       <div className="fixed bottom-6 right-6 z-40 bg-slate-900/80 backdrop-blur-md border border-gold-500/30 px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl">
         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Resilient Network Verified</span>
+        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Resilience Node Verified: #821,442</span>
       </div>
     </div>
   );
